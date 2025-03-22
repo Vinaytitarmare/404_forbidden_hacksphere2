@@ -1,0 +1,7 @@
+tensorflow-cpu==2.9.0     # TensorFlow for model-based document verification
+pillow==9.0.1              # Python Imaging Library for image handling
+pytesseract==0.3.9         # OCR for text extraction
+opencv-python-headless==4.5.5.64  # OpenCV for image processing
+numpy==1.22.3              # Array manipulation for TensorFlow preprocessing
+flask                      # Web framework for the backend
+werkzeug                   # Utility library for secure uploads

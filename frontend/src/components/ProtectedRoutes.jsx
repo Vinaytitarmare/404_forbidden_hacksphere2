@@ -3,22 +3,23 @@ import { Navigate, useLocation } from "react-router-dom";
 
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();
-  const [isAuthenticated, setIsAuthenticated] = useState(() => !!localStorage.getItem("token"));
+  const [isAuthenticated, setIsAuthenticated] = useState(() => !!localStorage.getItem("walletAddress"));
 
   useEffect(() => {
     const checkAuth = () => {
-      setIsAuthenticated(!!localStorage.getItem("token"));
+      setIsAuthenticated(!!localStorage.getItem("walletAddress"));
     };
 
-    checkAuth(); 
+    checkAuth();
     window.addEventListener("storage", checkAuth);
 
     return () => window.removeEventListener("storage", checkAuth);
   }, []);
 
   useEffect(() => {
-    setIsAuthenticated(!!localStorage.getItem("token"));
+    setIsAuthenticated(!!localStorage.getItem("walletAddress"));
   }, [location]);
+
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }

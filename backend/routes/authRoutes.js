@@ -1,71 +1,37 @@
 const express = require("express");
 const router = express.Router();
-const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
-const authMiddleware = require("../middleware/auth");
 
+// POST /api/auth/metamask-login
+router.post("/metamask-login", async (req, res) => {
+  const { walletAddress, username } = req.body;
 
-router.post("/register", async (req, res) => {
-  const { username, email, password } = req.body;
-
-  try {
-
-    let user = await User.findOne({ email });
-    if (user) {
-      return res.status(400).json({ error: "User already exists." });
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    user = new User({ username, email, password: hashedPassword });
-    await user.save();
-
-    const token = jwt.sign({ id: user ._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
-    res.status(201).json({ token });
-  } catch (err) {
-    res.status(500).json({ error: "Server error." });
+  if (!walletAddress) {
+    return res.status(400).json({ error: "Wallet address is required" });
   }
-});
-
-router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-  console.log("Login attempt for:", email); 
 
   try {
-    const user = await User.findOne({ email });
+    let user = await User.findOne({ walletAddress });
+
     if (!user) {
-      console.log("User  not found");
-      return res.status(400).json({ error: "Invalid credentials." });
+      // If user does not exist, create a new one
+      if (!username) {
+        return res.status(400).json({ error: "Username is required for new users" });
+      }
+
+      user = new User({ username, walletAddress });
+      await user.save();
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      console.log("Password does not match");
-      return res.status(400).json({ error: "Invalid credentials." });
-    }
+    // Generate JWT token
+    const token = jwt.sign({ id: user._id, walletAddress: user.walletAddress }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
-    console.log("Token generated:", token); 
-    res.json({ token });
+    res.json({ token, message: "Login successful!" });
   } catch (err) {
-    console.error("Error during login:", err);
-    res .status(500).json({ error: "Server error." });
+    console.error("Error in MetaMask login:", err);
+    res.status(500).json({ error: "Server error" });
   }
 });
-
-
-// router.get("/me", authMiddleware, async (req, res) => {
-//   try {
-//     const user = await User.findById(req.user.id).select("-password"); // Exclude password
-//     if (!user) {
-//       return res.status(404).json({ error: "User not found" });
-//     }
-//     res.json(user);
-//   } catch (error) {
-//     res.status(500).json({ error: "Server error" });
-//   }
-// });
 
 module.exports = router;
