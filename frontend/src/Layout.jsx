@@ -8,7 +8,7 @@ function Layout() {
     <>
    
 
-      <div className="relative z-10 min-h-screen flex flex-col">
+      <div className="relative z-10 min-h-screen flex flex-col w-full bg-gray-900">
         <Header />
         <div className="">
           <Outlet />

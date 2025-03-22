@@ -2,7 +2,7 @@ import React from 'react'
 
 function Home() {
   return (
-    <div className=''>Home page</div>
+    <div className='w-full '><div className='flex justify-center items-center'>Home</div></div>
   )
 }
 
